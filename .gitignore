@@ -1,0 +1,38 @@
+# ── Secrets ───────────────────────────────────────────────────────────────────
+.env
+
+# ── Generated output ──────────────────────────────────────────────────────────
+output/
+
+# ── Data files ────────────────────────────────────────────────────────────────
+accounts.csv
+usage_metrics.csv
+support_tickets.csv
+nps_responses.csv
+csm_notes.txt
+changelog.md
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Streamlit Cloud secrets (never commit) ───────────────────────────────────
+.streamlit/secrets.toml
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.cursor
+deign.md
+ASSIGNMENT.md
