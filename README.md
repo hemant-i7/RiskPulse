@@ -2,6 +2,8 @@
 
 > Identify which accounts are most likely to churn before renewal — and exactly why — using multi-source signal fusion and an LLM explanation layer.
 
+[![Watch the demo](https://img.youtube.com/vi/log5LhaQjA0/maxresdefault.jpg)](https://youtu.be/log5LhaQjA0)
+
 ---
 
 ## What it does
