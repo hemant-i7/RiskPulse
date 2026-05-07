@@ -596,6 +596,7 @@ with t1:
                 f'<span class="signal-tag{"  critical" if s in CRITICAL_SIGS else ""}">{s}</span>'
                 for s in signals[:5]
             )
+            sdk_html = '<span class="signal-tag critical">SDK v3 — deprecated</span>' if is_v3 else ""
             if sig_html or sdk_html:
                 st.markdown(f'<div style="margin:10px 0 12px;">{sig_html}{sdk_html}</div>',
                             unsafe_allow_html=True)

@@ -19,6 +19,10 @@ Given six data sources (account master, usage telemetry, support tickets, CSM ca
 
 ## Architecture
 
+![RiskPulse System Architecture](main.png)
+
+The diagram above shows the full system: data sources → Python backend → Streamlit UI, the risk scoring engine with all 11 weighted signals, and the LLM cost model for both the pipeline and chat Q&A.
+
 ```
 accounts.csv ──────┐
 usage_metrics.csv ─┤
