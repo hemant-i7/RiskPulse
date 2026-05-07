@@ -173,29 +173,62 @@ details[open] summary { border-bottom: 1px solid #1a1a2e; }
 .track { height: 4px; background: #1a1a2e; border-radius: 9999px; overflow: hidden; margin: 3px 0; }
 .fill  { height: 4px; border-radius: 9999px; }
 
-.stat-mini { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin: 14px 0 12px; }
-.stat-mini-cell { background: #0c0c14; border: 1px solid #1a1a2e; border-radius: 8px; padding: 10px 12px; }
+.stat-mini { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin: 14px 0 4px; }
+.stat-mini-cell {
+  background: #0c0c14; border: 1px solid #1a1a2e; border-radius: 8px;
+  padding: 10px 12px; border-top-width: 2px;
+}
+.stat-mini-cell.c-usage  { border-top-color: #6366f1; }
+.stat-mini-cell.c-users  { border-top-color: #0ea5e9; }
+.stat-mini-cell.c-nps    { border-top-color: #a78bfa; }
+.stat-mini-cell.c-p1     { border-top-color: #f97316; }
 .stat-mini-lbl  { font-size: 10px; color: #44445a; text-transform:uppercase; letter-spacing:.5px; }
 .stat-mini-val  { font-size: 18px; font-weight: 700; color: #e0e0f4; margin-top:4px; }
+.stat-mini-hint { font-size: 10px; color: #2e2e4a; margin-top:3px; font-style:italic; }
 
 .signal-tag {
   display:inline-block; padding:2px 9px; border-radius:6px;
-  font-size:11px; background:#0c0c14; border:1px solid #1a1a2e; color:#6b6b8a;
+  font-size:11px; background:#0f0f22; border:1px solid #1e1e38; color:#7070a0;
   margin:2px 3px 2px 0;
+}
+.signal-tag.critical {
+  background:#1a0808; border-color:#4a1010; color:#f87171;
 }
 .sdk-tag {
   display:inline-block; padding:2px 9px; border-radius:6px;
   font-size:11px; background:#1a0e00; border:1px solid #4a2e00; color:#f97316;
   margin:2px 3px 2px 0;
 }
+.sdk-tag-ok {
+  display:inline-block; padding:2px 9px; border-radius:6px;
+  font-size:11px; background:#071a10; border:1px solid #0d4020; color:#34d399;
+  margin:2px 3px 2px 0;
+}
+
+.annot {
+  font-size:11px; color:#2e2e48; font-style:italic; margin-top:6px;
+  padding-left:2px; line-height:1.5;
+}
 
 .expl-text { font-size: 13px; color: #7070a0; line-height: 1.65; margin-bottom: 12px; }
 .action-line {
   display:flex; gap:10px; align-items:flex-start;
-  background:#0d0d22; border-left:2px solid #4f46e5; border-radius:0 8px 8px 0;
+  background:#0d0d22; border-left:2px solid #6366f1; border-radius:0 8px 8px 0;
   padding:10px 14px;
 }
 .action-line span { font-size:13px; color:#a5b4fc; line-height:1.55; }
+
+.sdk-row {
+  display:flex; align-items:center; gap:8px;
+  background:#0a0a18; border:1px solid #1a1a2e; border-radius:8px;
+  padding:8px 12px; margin: 8px 0 12px; font-size:12px;
+}
+.sdk-row-label { color:#44445a; }
+.sdk-row-val   { font-family:monospace; font-size:12px; }
+
+.score-bar-wrap { margin: 4px 0 16px; }
+.score-bar-bg   { height:3px; background:#1a1a2e; border-radius:9999px; overflow:hidden; }
+.score-bar-fill { height:3px; border-radius:9999px; }
 
 .insight-block {
   background:#0e0e22; border:1px solid #1e1c50; border-radius:12px;
@@ -466,9 +499,6 @@ with t1:
         nps_v  = f"{nps:.1f}" if nps else "—"
         p1_c   = "#f87171" if p1>=2 else "#fbbf24" if p1==1 else "#e0e0f4"
 
-        sig_html = "".join(f'<span class="signal-tag">{s}</span>' for s in signals[:4])
-        sdk_html = '<span class="sdk-tag">⚠ SDK v3</span>' if sdk.lower().startswith("v3") else ""
-
         # expander label — clearly labelled
         tier_icon = {"High": "🔴", "Medium": "🟡", "Low": "🟢"}.get(tier, "")
         try:
@@ -483,60 +513,105 @@ with t1:
             f"   |   {days_label}"
         )
         with st.expander(label, expanded=(tier == "High")):
-            # top meta row
+
+            # ── top meta row ──────────────────────────────────────────────────
             st.markdown(f"""
 <div style="display:flex;align-items:center;justify-content:space-between;
-            flex-wrap:wrap;gap:8px;padding:4px 0 12px;">
-  <div style="display:flex;align-items:center;gap:10px;">
-    <span style="font-size:10px;font-weight:600;color:{tm['color']};
-                 background:{tm['dim']}22;border:1px solid {tm['dim']};
-                 padding:3px 10px;border-radius:6px;">{tier.upper()}</span>
+            flex-wrap:wrap;gap:8px;padding:4px 0 10px;">
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+    <span style="font-size:10px;font-weight:700;color:{tm['color']};
+                 background:{tm['dim']}33;border:1px solid {tm['dim']}88;
+                 padding:3px 10px;border-radius:6px;letter-spacing:.5px;">{tier.upper()}</span>
     {days_chip(days)}
-    <span style="font-size:12px;color:#44445a;">{plan} · {region} · CSM: {csm}</span>
+    <span style="font-size:11px;color:#2e2e48;background:#0f0f1e;
+                 border:1px solid #1a1a2e;padding:2px 9px;border-radius:6px;">
+      {plan}
+    </span>
+    <span style="font-size:12px;color:#44445a;">{region} &nbsp;·&nbsp; CSM: {csm}</span>
   </div>
-  <div style="font-size:11px;color:#44445a;">Score <strong style="color:{tm['color']};">{score}/100</strong></div>
+  <div style="font-size:12px;color:#44445a;">
+    Risk score &nbsp;<strong style="color:{tm['color']};font-size:15px;">{score}</strong>
+    <span style="color:#2e2e48;">/100</span>
+  </div>
 </div>
-<div style="height:4px;background:#1a1a2e;border-radius:9999px;overflow:hidden;margin-bottom:14px;">
-  <div style="width:{score}%;height:4px;background:{tm['color']};border-radius:9999px;"></div>
+<div class="score-bar-wrap">
+  <div class="score-bar-bg">
+    <div class="score-bar-fill" style="width:{score}%;background:{tm['color']};"></div>
+  </div>
 </div>
 """, unsafe_allow_html=True)
 
-            # 4 stat cells
+            # ── SDK version row ───────────────────────────────────────────────
+            is_v3 = sdk.lower().startswith("v3")
+            sdk_color  = "#f97316" if is_v3 else "#34d399"
+            sdk_bg     = "#1a0e00" if is_v3 else "#071a10"
+            sdk_border = "#4a2e00" if is_v3 else "#0d4020"
+            sdk_note   = "⚠ sunset breach — dead endpoints in prod" if is_v3 else "✓ current, CVE-2026-1102 exposure check needed" if not sdk.startswith("v4.3.2") else "✓ patched"
+            st.markdown(f"""
+<div class="sdk-row">
+  <span class="sdk-row-label">SDK version</span>
+  <span class="sdk-row-val" style="color:{sdk_color};background:{sdk_bg};
+        border:1px solid {sdk_border};padding:1px 8px;border-radius:5px;">{sdk}</span>
+  <span style="color:#2e2e48;font-size:11px;">{sdk_note}</span>
+</div>""", unsafe_allow_html=True)
+
+            # ── 4 stat cells with color accents + hints ───────────────────────
+            dec_hint = "above threshold — churn signal" if dec >= .3 else "moderate decline" if dec >= .15 else "stable"
+            usr_hint = "shelfware risk" if users <= 3 else "low adoption" if users <= 6 else "healthy"
+            nps_hint = "detractor" if nps and nps <= 6 else "passive" if nps and nps < 8 else "promoter" if nps else "no response"
+            p1_hint  = "critical — near renewal" if p1 >= 2 else "one open P1" if p1 == 1 else "no open P1s"
+
             st.markdown(f"""
 <div class="stat-mini">
-  <div class="stat-mini-cell">
+  <div class="stat-mini-cell c-usage">
     <div class="stat-mini-lbl">API Decline</div>
     <div class="stat-mini-val" style="color:{dec_c};">{dec:.0%}</div>
+    <div class="stat-mini-hint">{dec_hint}</div>
   </div>
-  <div class="stat-mini-cell">
+  <div class="stat-mini-cell c-users">
     <div class="stat-mini-lbl">Active Users</div>
     <div class="stat-mini-val" style="color:{usr_c};">{users}</div>
+    <div class="stat-mini-hint">{usr_hint}</div>
   </div>
-  <div class="stat-mini-cell">
-    <div class="stat-mini-lbl">NPS</div>
+  <div class="stat-mini-cell c-nps">
+    <div class="stat-mini-lbl">NPS Score</div>
     <div class="stat-mini-val" style="color:{nps_c};">{nps_v}</div>
+    <div class="stat-mini-hint">{nps_hint}</div>
   </div>
-  <div class="stat-mini-cell">
+  <div class="stat-mini-cell c-p1">
     <div class="stat-mini-lbl">Open P1s</div>
     <div class="stat-mini-val" style="color:{p1_c};">{p1}</div>
+    <div class="stat-mini-hint">{p1_hint}</div>
   </div>
+</div>
+<div class="annot">
+  ARR ${arr:,} &nbsp;·&nbsp; {int(open_t)} open tickets total &nbsp;·&nbsp; {len(signals)} risk signal{"s" if len(signals)!=1 else ""} fired
 </div>
 """, unsafe_allow_html=True)
 
-            # signals
+            # ── signals ───────────────────────────────────────────────────────
+            CRITICAL_SIGS = {"Multiple P1 incidents indicate severe product pain.",
+                             "Account is still on SDK v3.x near security/deprecation deadlines."}
+            sig_html = "".join(
+                f'<span class="signal-tag{"  critical" if s in CRITICAL_SIGS else ""}">{s}</span>'
+                for s in signals[:5]
+            )
             if sig_html or sdk_html:
-                st.markdown(f'<div style="margin-bottom:12px;">{sig_html}{sdk_html}</div>',
+                st.markdown(f'<div style="margin:10px 0 12px;">{sig_html}{sdk_html}</div>',
                             unsafe_allow_html=True)
 
-            # explanation
+            # ── explanation ───────────────────────────────────────────────────
             if expl and expl not in ("nan", ""):
-                st.markdown(f'<div class="expl-text">{expl}</div>', unsafe_allow_html=True)
+                st.markdown(f"""
+<div style="font-size:10px;font-weight:600;color:#2e2e48;text-transform:uppercase;
+            letter-spacing:.7px;margin-bottom:5px;">AI Analysis</div>
+<div class="expl-text">{expl}</div>""", unsafe_allow_html=True)
 
-            # action
+            # ── action ────────────────────────────────────────────────────────
             if action and action not in ("nan", ""):
                 st.markdown(f"""
 <div class="action-line">
-  <span>→ &nbsp;<strong style="color:#818cf8;">Action:</strong> {action}</span>
+  <span>→ &nbsp;<strong style="color:#818cf8;">Recommended action:</strong> &nbsp;{action}</span>
 </div>""", unsafe_allow_html=True)
 
 
